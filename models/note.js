@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 
 const noteSchema = new mongoose.Schema({
   title: { type: String, index: true },

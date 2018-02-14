@@ -4,7 +4,6 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const chaiSpies = require('chai-spies');
 const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 
 const { TEST_MONGODB_URI } = require('../config');
 
@@ -18,12 +17,12 @@ chai.use(chaiSpies);
 
 describe('Noteful API - Notes', function () {
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { autoIndex: false });
+    return mongoose.connect(TEST_MONGODB_URI);
   });
 
   beforeEach(function () {
     return Note.insertMany(seedNotes)
-      .then(() => Note.ensureIndexes());
+      .then(() => Note.createIndexes());
   });
 
   afterEach(function () {
