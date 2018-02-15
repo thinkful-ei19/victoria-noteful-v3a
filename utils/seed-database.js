@@ -20,6 +20,7 @@ mongoose.connect(MONGODB_URI)
         console.info(`Inserted ${results.length} Notes`);
       });
   })
+  .then(() => Note.createIndexes())
   .then(() => {
     return mongoose.disconnect()
       .then(() => {
