@@ -127,13 +127,13 @@ describe('Noteful API - Notes', function () {
       return chai.request(app)
         .get(`/v3/notes/${badId}`)
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           const res = err.response;
           expect(res).to.have.status(400);
           expect(res.body.message).to.eq('The `id` is not valid');
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -142,11 +142,11 @@ describe('Noteful API - Notes', function () {
       return chai.request(app)
         .get('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           expect(err.response).to.have.status(404);
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -188,15 +188,15 @@ describe('Noteful API - Notes', function () {
         .post('/v3/notes')
         .send(newItem)
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           const res = err.response;
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -241,13 +241,13 @@ describe('Noteful API - Notes', function () {
         .put(`/v3/notes/${badId}`)
         .send(updateItem)
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           const res = err.response;
           expect(res).to.have.status(400);
           expect(res.body.message).to.eq('The `id` is not valid');
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -261,11 +261,11 @@ describe('Noteful API - Notes', function () {
         .put('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .send(updateItem)
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           expect(err.response).to.have.status(404);
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -278,15 +278,15 @@ describe('Noteful API - Notes', function () {
         .put('/v3/notes/9999')
         .send(updateItem)
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           const res = err.response;
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -311,11 +311,11 @@ describe('Noteful API - Notes', function () {
       return chai.request(app)
         .delete('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .then(spy)
-        .then(() => {
-          expect(spy).to.not.have.been.called();
-        })
         .catch(err => {
           expect(err.response).to.have.status(404);
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
         });
     });
 
