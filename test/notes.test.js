@@ -4,11 +4,14 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const chaiSpies = require('chai-spies');
 const mongoose = require('mongoose');
+const express = require('express');
+const sinon = require('sinon');
 
 const { TEST_MONGODB_URI } = require('../config');
 
 const Note = require('../models/note');
 const seedNotes = require('../db/seed/notes');
+const sandbox = sinon.sandbox.create();
 
 const expect = chai.expect;
 
@@ -26,6 +29,7 @@ describe('Noteful API - Notes', function () {
   });
 
   afterEach(function () {
+    sandbox.restore();
     return mongoose.connection.db.dropDatabase();
   });
 
@@ -97,6 +101,18 @@ describe('Noteful API - Notes', function () {
         });
     });
 
+    it('should catch errors and respond properly', function () {
+      const spy = chai.spy();
+      sandbox.stub(express.response, 'json').throws('TypeError');
+      return chai.request(app).get('/v3/notes')
+        .then(spy)
+        .catch(err => {
+          expect(err).to.have.status(500);
+        })
+        .then(() => {
+          expect(spy).to.not.have.been.called();
+        });
+    });
   });
 
   describe('GET /v3/notes/:id', function () {

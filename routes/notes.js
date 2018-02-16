@@ -27,7 +27,9 @@ router.get('/notes', (req, res, next) => {
     .then(results => {
       res.json(results);
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 });
 
 /* ========== GET/READ A SINGLE ITEM ========== */
