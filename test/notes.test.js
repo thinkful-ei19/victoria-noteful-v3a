@@ -111,7 +111,7 @@ describe('Noteful API - Notes', function () {
           expect(res).to.be.json;
 
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'title', 'content');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'created');
 
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(data.title);
@@ -279,16 +279,6 @@ describe('Noteful API - Notes', function () {
         })
         .then(function (res) {
           expect(res).to.have.status(204);
-        });
-    });
-
-    it('should respond with a 404 for an invalid id', function () {
-
-      return chai.request(app)
-        .delete('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
-        .catch(err => err.response)
-        .then(res => {
-          expect(res).to.have.status(404);
         });
     });
 
