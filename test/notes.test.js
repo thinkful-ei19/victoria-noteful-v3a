@@ -3,7 +3,6 @@ const app = require('../server');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
-const express = require('express');
 
 const { TEST_MONGODB_URI } = require('../config');
 
