@@ -2,7 +2,6 @@
 const app = require('../server');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const chaiSpies = require('chai-spies');
 const mongoose = require('mongoose');
 const express = require('express');
 const sinon = require('sinon');
@@ -16,7 +15,6 @@ const sandbox = sinon.sandbox.create();
 const expect = chai.expect;
 
 chai.use(chaiHttp);
-chai.use(chaiSpies);
 
 describe('Noteful API - Notes', function () {
   before(function () {
@@ -102,15 +100,12 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      const spy = chai.spy();
+
       sandbox.stub(express.response, 'json').throws('TypeError');
       return chai.request(app).get('/api/notes')
-        .then(spy)
-        .catch(err => {
-          expect(err).to.have.status(500);
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(500);
         });
     });
   });
@@ -139,30 +134,23 @@ describe('Noteful API - Notes', function () {
 
     it('should respond with a 400 for improperly formatted id', function () {
       const badId = '99-99-99';
-      const spy = chai.spy();
+
       return chai.request(app)
         .get(`/api/notes/${badId}`)
-        .then(spy)
-        .catch(err => {
-          const res = err.response;
+        .catch(err => err.response)
+        .then(res => {
           expect(res).to.have.status(400);
           expect(res.body.message).to.eq('The `id` is not valid');
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
         });
     });
 
     it('should respond with a 404 for an invalid id', function () {
-      const spy = chai.spy();
+
       return chai.request(app)
         .get('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
-        .then(spy)
-        .catch(err => {
-          expect(err.response).to.have.status(404);
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
+        .catch(err => err.response)
+        .catch(res => {
+          expect(res).to.have.status(404);
         });
     });
 
@@ -199,20 +187,16 @@ describe('Noteful API - Notes', function () {
       const newItem = {
         'foo': 'bar'
       };
-      const spy = chai.spy();
+
       return chai.request(app)
         .post('/api/notes')
         .send(newItem)
-        .then(spy)
-        .catch(err => {
-          const res = err.response;
+        .catch(err => err.response)
+        .then(res => {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -252,18 +236,14 @@ describe('Noteful API - Notes', function () {
         'content': 'woof woof'
       };
       const badId = '99-99-99';
-      const spy = chai.spy();
+
       return chai.request(app)
         .put(`/api/notes/${badId}`)
         .send(updateItem)
-        .then(spy)
-        .catch(err => {
-          const res = err.response;
+        .catch(err => err.response)
+        .then(res => {
           expect(res).to.have.status(400);
           expect(res.body.message).to.eq('The `id` is not valid');
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -272,16 +252,13 @@ describe('Noteful API - Notes', function () {
         'title': 'What about dogs?!',
         'content': 'woof woof'
       };
-      const spy = chai.spy();
+
       return chai.request(app)
         .put('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .send(updateItem)
-        .then(spy)
-        .catch(err => {
-          expect(err.response).to.have.status(404);
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(404);
         });
     });
 
@@ -289,20 +266,16 @@ describe('Noteful API - Notes', function () {
       const updateItem = {
         'foo': 'bar'
       };
-      const spy = chai.spy();
+
       return chai.request(app)
         .put('/api/notes/9999')
         .send(updateItem)
-        .then(spy)
-        .catch(err => {
-          const res = err.response;
+        .catch(err => err.response)
+        .then(res => {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
         });
     });
 
@@ -323,15 +296,12 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should respond with a 404 for an invalid id', function () {
-      const spy = chai.spy();
+
       return chai.request(app)
         .delete('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
-        .then(spy)
-        .catch(err => {
-          expect(err.response).to.have.status(404);
-        })
-        .then(() => {
-          expect(spy).to.not.have.been.called();
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(404);
         });
     });
 
