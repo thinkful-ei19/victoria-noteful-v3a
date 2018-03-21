@@ -1,6 +1,14 @@
 language: node_js
 node_js: node
 env:
-  - NODE_ENV=test
+- NODE_ENV=test
 services:
-  - mongodb
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: DLynshhAsTGU8Q2JlvmTdBKcfXo0jnxT+8cFUp/7F6D8Ss82SVjpPSAZCVfVHDBASQI8bKejgxXGuRt9xRenxO15yEfux914dphl82VX/ke5AnHLtJcRKgeCGf6sXZTVAf4lkqRLCiUmf8sGYsiXVdyQomcDFLEBZOEQR2mrTeG4d11iwTJu6Uche35C37p5Tgi/10j7O10JxnW3d/a202lxJZAOdSLa6bCSWawbCAqPwY3ntWLe0+ZJaaPNpFpFiB9CQqL13nf0tsC7WEB347tjWdAF6JE39MfVxbOPggun3ndqKzz0gpCBdV1OfOMgP9ZMrCquYumuQpoIStGX8APwtIReVPaPwqrmM1MOxQqXV2Xk7jITzZADn9ZlDdLgTA/fx0XhIG/tpXQeSy/0HEJkm7LkwqY/V3HVyjM0ueMPp+JbHlozEtZNRjAy60md35N45nqBoTA0E/XEmR57Q0IifK/8QyfkQZVpLi6ZBVOA5x5CALVCWFHIrrDxrauzp9aqszOw5BKYFDtE5PA4/oHbWJsjIUqTTtDvTL82oG18Bg+TpL75Rcx3LXuQcvaZ3cOti0etimTQkO258nzsSUyGeJB5NHICAeqeCWFVQSe63E/kMzOqO9NOP28jqMNYTsQRacMO3SmwHJ7AGfbQQVacn5THe6DADeMBz/zi5Xo=
+  app: noteful-app-v3-c19
+  on:
+    repo: cklanac/noteful-app-v3
+    branch: solution/3-testing
