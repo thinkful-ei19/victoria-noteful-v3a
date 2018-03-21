@@ -4,19 +4,19 @@
 $(document).ready(function () {
   noteful.bindEventListeners();
 
-  api.search('/v3/notes')
+  api.search('/api/notes')
     .then(response => {
       store.notes = response;
       noteful.render();
     });
 
-  // api.search('/v3/folders')
+  // api.search('/api/folders')
   //   .then(response => {
   //     store.folders = response;
   //     noteful.render();
   //   });
 
-  // api.search('/v3/tags')
+  // api.search('/api/tags')
   //   .then(response => {
   //     store.tags = response;
   //     noteful.render();

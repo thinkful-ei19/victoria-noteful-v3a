@@ -37,11 +37,11 @@ describe('Noteful API - Notes', function () {
     return mongoose.disconnect();
   });
 
-  describe('GET /v3/notes', function () {
+  describe('GET /api/notes', function () {
 
     it('should return the correct number of Notes', function () {
       const dbPromise = Note.find();
-      const apiPromise = chai.request(app).get('/v3/notes');
+      const apiPromise = chai.request(app).get('/api/notes');
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -54,7 +54,7 @@ describe('Noteful API - Notes', function () {
 
     it('should return a list with the correct right fields', function () {
       const dbPromise = Note.find();
-      const apiPromise = chai.request(app).get('/v3/notes');
+      const apiPromise = chai.request(app).get('/api/notes');
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -75,7 +75,7 @@ describe('Noteful API - Notes', function () {
         { $text: { $search: term } },
         { score: { $meta: 'textScore' } })
         .sort({ score: { $meta: 'textScore' } });
-      const apiPromise = chai.request(app).get(`/v3/notes?searchTerm=${term}`);
+      const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${term}`);
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -90,7 +90,7 @@ describe('Noteful API - Notes', function () {
 
     it('should return an empty array for an incorrect query', function () {
       const dbPromise = Note.find({ title: { $regex: /NotValid/i } });
-      const apiPromise = chai.request(app).get('/v3/notes?searchTerm=NotValid');
+      const apiPromise = chai.request(app).get('/api/notes?searchTerm=NotValid');
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -104,7 +104,7 @@ describe('Noteful API - Notes', function () {
     it('should catch errors and respond properly', function () {
       const spy = chai.spy();
       sandbox.stub(express.response, 'json').throws('TypeError');
-      return chai.request(app).get('/v3/notes')
+      return chai.request(app).get('/api/notes')
         .then(spy)
         .catch(err => {
           expect(err).to.have.status(500);
@@ -115,14 +115,14 @@ describe('Noteful API - Notes', function () {
     });
   });
 
-  describe('GET /v3/notes/:id', function () {
+  describe('GET /api/notes/:id', function () {
 
     it('should return correct notes', function () {
       let data;
       return Note.findOne().select('id title content')
         .then(_data => {
           data = _data;
-          return chai.request(app).get(`/v3/notes/${data.id}`);
+          return chai.request(app).get(`/api/notes/${data.id}`);
         })
         .then((res) => {
           expect(res).to.have.status(200);
@@ -141,7 +141,7 @@ describe('Noteful API - Notes', function () {
       const badId = '99-99-99';
       const spy = chai.spy();
       return chai.request(app)
-        .get(`/v3/notes/${badId}`)
+        .get(`/api/notes/${badId}`)
         .then(spy)
         .catch(err => {
           const res = err.response;
@@ -156,7 +156,7 @@ describe('Noteful API - Notes', function () {
     it('should respond with a 404 for an invalid id', function () {
       const spy = chai.spy();
       return chai.request(app)
-        .get('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
+        .get('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .then(spy)
         .catch(err => {
           expect(err.response).to.have.status(404);
@@ -168,7 +168,7 @@ describe('Noteful API - Notes', function () {
 
   });
 
-  describe('POST /v3/notes', function () {
+  describe('POST /api/notes', function () {
 
     it('should create and return a new item when provided valid data', function () {
       const newItem = {
@@ -178,7 +178,7 @@ describe('Noteful API - Notes', function () {
       };
       let body;
       return chai.request(app)
-        .post('/v3/notes')
+        .post('/api/notes')
         .send(newItem)
         .then(function (res) {
           body = res.body;
@@ -201,7 +201,7 @@ describe('Noteful API - Notes', function () {
       };
       const spy = chai.spy();
       return chai.request(app)
-        .post('/v3/notes')
+        .post('/api/notes')
         .send(newItem)
         .then(spy)
         .catch(err => {
@@ -218,7 +218,7 @@ describe('Noteful API - Notes', function () {
 
   });
 
-  describe('PUT /v3/notes/:id', function () {
+  describe('PUT /api/notes/:id', function () {
 
     it('should update the note', function () {
       const updateItem = {
@@ -230,7 +230,7 @@ describe('Noteful API - Notes', function () {
         .then(_data => {
           data = _data;
           return chai.request(app)
-            .put(`/v3/notes/${data.id}`)
+            .put(`/api/notes/${data.id}`)
             .send(updateItem);
         })
         .then(function (res) {
@@ -254,7 +254,7 @@ describe('Noteful API - Notes', function () {
       const badId = '99-99-99';
       const spy = chai.spy();
       return chai.request(app)
-        .put(`/v3/notes/${badId}`)
+        .put(`/api/notes/${badId}`)
         .send(updateItem)
         .then(spy)
         .catch(err => {
@@ -274,7 +274,7 @@ describe('Noteful API - Notes', function () {
       };
       const spy = chai.spy();
       return chai.request(app)
-        .put('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
+        .put('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .send(updateItem)
         .then(spy)
         .catch(err => {
@@ -291,7 +291,7 @@ describe('Noteful API - Notes', function () {
       };
       const spy = chai.spy();
       return chai.request(app)
-        .put('/v3/notes/9999')
+        .put('/api/notes/9999')
         .send(updateItem)
         .then(spy)
         .catch(err => {
@@ -308,14 +308,14 @@ describe('Noteful API - Notes', function () {
 
   });
 
-  describe('DELETE  /v3/notes/:id', function () {
+  describe('DELETE  /api/notes/:id', function () {
 
     it('should delete an item by id', function () {
       let data;
       return Note.findOne().select('id title content')
         .then(_data => {
           data = _data;
-          return chai.request(app).delete(`/v3/notes/${data.id}`);
+          return chai.request(app).delete(`/api/notes/${data.id}`);
         })
         .then(function (res) {
           expect(res).to.have.status(204);
@@ -325,7 +325,7 @@ describe('Noteful API - Notes', function () {
     it('should respond with a 404 for an invalid id', function () {
       const spy = chai.spy();
       return chai.request(app)
-        .delete('/v3/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
+        .delete('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .then(spy)
         .catch(err => {
           expect(err.response).to.have.status(404);
