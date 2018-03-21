@@ -22,7 +22,6 @@ router.get('/notes', (req, res, next) => {
   }
 
   Note.find(filter, projection)
-    .select('title content created')
     .sort(sort)
     .then(results => {
       res.json(results);
@@ -43,7 +42,6 @@ router.get('/notes/:id', (req, res, next) => {
   }
 
   Note.findById(id)
-    .select('id title content')
     .then(result => {
       if (result) {
         res.json(result);
@@ -51,27 +49,31 @@ router.get('/notes/:id', (req, res, next) => {
         next();
       }
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 });
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/notes', (req, res, next) => {
   const { title, content } = req.body;
-  
+
   /***** Never trust users - validate input *****/
   if (!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
   }
-  
+
   const newItem = { title, content };
 
   Note.create(newItem)
     .then(result => {
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
@@ -96,7 +98,6 @@ router.put('/notes/:id', (req, res, next) => {
   const options = { new: true };
 
   Note.findByIdAndUpdate(id, updateItem, options)
-    .select('id title content')
     .then(result => {
       if (result) {
         res.json(result);
@@ -104,7 +105,9 @@ router.put('/notes/:id', (req, res, next) => {
         next();
       }
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
@@ -112,14 +115,12 @@ router.delete('/notes/:id', (req, res, next) => {
   const { id } = req.params;
 
   Note.findByIdAndRemove(id)
-    .then(count => {
-      if (count) {
-        res.status(204).end();
-      } else {
-        next();
-      }
+    .then(() => {
+      res.status(204).end();
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 });
 
 module.exports = router;
