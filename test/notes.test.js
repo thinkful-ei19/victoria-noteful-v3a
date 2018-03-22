@@ -32,20 +32,7 @@ describe('Noteful API - Notes', function () {
 
   describe('GET /api/notes', function () {
 
-    it('should return the correct number of Notes', function () {
-      const dbPromise = Note.find();
-      const apiPromise = chai.request(app).get('/api/notes');
-
-      return Promise.all([dbPromise, apiPromise])
-        .then(([data, res]) => {
-          expect(res).to.have.status(200);
-          expect(res).to.be.json;
-          expect(res.body).to.be.a('array');
-          expect(res.body).to.have.length(data.length);
-        });
-    });
-
-    it('should return a list with the correct right fields', function () {
+    it('should return the correct number of Notes and correct fields', function () {
       const dbPromise = Note.find();
       const apiPromise = chai.request(app).get('/api/notes');
 
@@ -63,12 +50,10 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should return correct search results for a searchTerm query', function () {
-      const term = 'gaga';
-      const dbPromise = Note.find(
-        { $text: { $search: term } },
-        { score: { $meta: 'textScore' } })
-        .sort({ score: { $meta: 'textScore' } });
-      const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${term}`);
+      const searchTerm = 'gaga';
+      const re = new RegExp(searchTerm, 'i');
+      const dbPromise = Note.find({ title: { $regex: re } });
+      const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${searchTerm}`);
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -82,8 +67,10 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should return an empty array for an incorrect query', function () {
-      const dbPromise = Note.find({ title: { $regex: /NotValid/i } });
-      const apiPromise = chai.request(app).get('/api/notes?searchTerm=NotValid');
+      const searchTerm = 'NotValid';
+      const re = new RegExp(searchTerm, 'i');
+      const dbPromise = Note.find({ title: { $regex: re } });
+      const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${searchTerm}`);
 
       return Promise.all([dbPromise, apiPromise])
         .then(([data, res]) => {
@@ -98,9 +85,9 @@ describe('Noteful API - Notes', function () {
 
   describe('GET /api/notes/:id', function () {
 
-    it('should return correct notes', function () {
+    it('should return correct note for a given id', function () {
       let data;
-      return Note.findOne().select('id title content')
+      return Note.findOne()
         .then(_data => {
           data = _data;
           return chai.request(app).get(`/api/notes/${data.id}`);
@@ -118,7 +105,7 @@ describe('Noteful API - Notes', function () {
         });
     });
 
-    it('should respond with a 400 for improperly formatted id', function () {
+    it('should respond with a 400 for an invalid id', function () {
       const badId = '99-99-99';
 
       return chai.request(app)
@@ -130,12 +117,12 @@ describe('Noteful API - Notes', function () {
         });
     });
 
-    it('should respond with a 404 for an invalid id', function () {
+    it('should respond with a 404 for non-existent id', function () {
 
       return chai.request(app)
         .get('/api/notes/AAAAAAAAAAAAAAAAAAAAAAAA')
         .catch(err => err.response)
-        .catch(res => {
+        .then(res => {
           expect(res).to.have.status(404);
         });
     });
@@ -147,31 +134,30 @@ describe('Noteful API - Notes', function () {
     it('should create and return a new item when provided valid data', function () {
       const newItem = {
         'title': 'The best article about cats ever!',
-        'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
-        'tags': []
+        'content': 'Lorem ipsum dolor sit amet, sed do eiusmod tempor...'
       };
-      let body;
+      let res;
       return chai.request(app)
         .post('/api/notes')
         .send(newItem)
-        .then(function (res) {
-          body = res.body;
+        .then(function (_res) {
+          res = _res;
           expect(res).to.have.status(201);
           expect(res).to.have.header('location');
           expect(res).to.be.json;
-          expect(body).to.be.a('object');
-          expect(body).to.include.keys('id', 'title', 'content');
-          return Note.findById(body.id);
+          expect(res.body).to.be.a('object');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'created');
+          return Note.findById(res.body.id);
         })
         .then(data => {
-          expect(body.title).to.equal(data.title);
-          expect(body.content).to.equal(data.content);
+          expect(res.body.title).to.equal(data.title);
+          expect(res.body.content).to.equal(data.content);
         });
     });
 
-    it('should return an error when missing "title" field', function () {
+    it('should return an error when posting an object with a missing "title" field', function () {
       const newItem = {
-        'foo': 'bar'
+        'content': 'Lorem ipsum dolor sit amet, sed do eiusmod tempor...'
       };
 
       return chai.request(app)
@@ -190,13 +176,13 @@ describe('Noteful API - Notes', function () {
 
   describe('PUT /api/notes/:id', function () {
 
-    it('should update the note', function () {
+    it('should update the note when provided proper valid data', function () {
       const updateItem = {
         'title': 'What about dogs?!',
         'content': 'woof woof'
       };
       let data;
-      return Note.findOne().select('id title content')
+      return Note.findOne()
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -207,7 +193,7 @@ describe('Noteful API - Notes', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.include.keys('id', 'title', 'content');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'created');
 
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(updateItem.title);
@@ -271,7 +257,7 @@ describe('Noteful API - Notes', function () {
 
     it('should delete an item by id', function () {
       let data;
-      return Note.findOne().select('id title content')
+      return Note.findOne()
         .then(_data => {
           data = _data;
           return chai.request(app).delete(`/api/notes/${data.id}`);
