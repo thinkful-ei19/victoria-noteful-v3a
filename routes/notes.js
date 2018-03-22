@@ -12,17 +12,14 @@ router.get('/notes', (req, res, next) => {
   const { searchTerm } = req.query;
 
   let filter = {};
-  let projection = {};
-  let sort = 'created'; // default sorting
 
   if (searchTerm) {
-    filter.$text = { $search: searchTerm };
-    projection.score = { $meta: 'textScore' };
-    sort = projection;
+    const re = new RegExp(searchTerm, 'i');
+    filter.title = { $regex: re };
   }
 
-  Note.find(filter, projection)
-    .sort(sort)
+  Note.find(filter)
+    .sort('created')
     .then(results => {
       res.json(results);
     })

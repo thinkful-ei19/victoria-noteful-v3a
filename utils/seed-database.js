@@ -10,7 +10,6 @@ const seedNotes = require('../db/seed/notes');
 mongoose.connect(MONGODB_URI)
   .then(() => mongoose.connection.db.dropDatabase())
   .then(() => Note.insertMany(seedNotes))
-  .then(() => Note.createIndexes())
   .then(() => mongoose.disconnect())
   .catch(err => {
     console.error(`ERROR: ${err.message}`);

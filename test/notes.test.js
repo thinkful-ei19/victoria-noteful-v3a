@@ -19,8 +19,7 @@ describe('Noteful API - Notes', function () {
   });
 
   beforeEach(function () {
-    return Note.insertMany(seedNotes)
-      .then(() => Note.createIndexes());
+    return Note.insertMany(seedNotes);
   });
 
   afterEach(function () {

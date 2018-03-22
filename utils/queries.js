@@ -17,11 +17,8 @@ mongoose.connect(MONGODB_URI)
     }
 
     return Note.find(filter)
-      .select('title created')
       .sort('created')
       .then(results => {
-        console.log('asdf');
-
         console.log(results);
       })
       .catch(console.error);
